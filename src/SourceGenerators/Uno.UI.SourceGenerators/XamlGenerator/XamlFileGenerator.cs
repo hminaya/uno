@@ -1353,7 +1353,7 @@ namespace Uno.UI.SourceGenerators.XamlGenerator
 		{
 			var type = FindType(xamlType);
 
-			// Determine if the type is a custom markup extension
+			// Determine if the type if a custom markup extension
 			return type?.Name != "NullExtension"
 				&& type.BaseType?.Name == "MarkupExtension";
 		}
