@@ -151,6 +151,8 @@ namespace Uno.UI.SourceGenerators.XamlGenerator
 		{
 			var stopwatch = Stopwatch.StartNew();
 
+			Debugger.Launch();
+
 			try
 			{
 				this.Log().InfoFormat("Xaml Source Generation is using the {0} Xaml Parser", XamlRedirection.XamlConfig.IsUnoXaml ? "Uno.UI" : "System");
