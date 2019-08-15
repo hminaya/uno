@@ -446,7 +446,7 @@ namespace Uno.UI.SourceGenerators.XamlGenerator
 			}
 
 			writer.AppendLineInvariant(";");
-			
+
 			writer.AppendLineInvariant("OnInitializeCompleted();");
 			writer.AppendLineInvariant("InitializeXamlOwner();");
 		}
@@ -895,31 +895,31 @@ namespace Uno.UI.SourceGenerators.XamlGenerator
 						// Skip and add it to the global resolver
 						break;
 					default:
-					{
-						if (IsSingleTimeInitializable(resource.Type))
 						{
-							writer.AppendLineInvariant(
-								$"public static {GetGlobalizedTypeName(resourceTypeName)} {SanitizeResourceName(resourcePropertyName)} {{{{ get; }}}} = ");
-							BuildChild(writer, null, resource);
-							writer.AppendLine(";");
-							writer.AppendLine();
-						}
-						else
-						{
-							BuildSingleTimeInitializer(
-								writer,
-								GenerateTypeName(resource),
-								resourceKey,
-								() =>
-								{
-									BuildChild(writer, null, resource);
-									writer.AppendLineInvariant(0, ";", resource.Type);
-								}
-							);
-						}
+							if (IsSingleTimeInitializable(resource.Type))
+							{
+								writer.AppendLineInvariant(
+									$"public static {GetGlobalizedTypeName(resourceTypeName)} {SanitizeResourceName(resourcePropertyName)} {{{{ get; }}}} = ");
+								BuildChild(writer, null, resource);
+								writer.AppendLine(";");
+								writer.AppendLine();
+							}
+							else
+							{
+								BuildSingleTimeInitializer(
+									writer,
+									GenerateTypeName(resource),
+									resourceKey,
+									() =>
+									{
+										BuildChild(writer, null, resource);
+										writer.AppendLineInvariant(0, ";", resource.Type);
+									}
+								);
+							}
 
-						break;
-					}
+							break;
+						}
 				}
 			}
 
@@ -939,75 +939,75 @@ namespace Uno.UI.SourceGenerators.XamlGenerator
 						// Skip and add it to the global resolver
 						break;
 					default:
-					{
-						var appThemes = resources.Where(x => x.Key.Equals("Light") || x.Key.Equals("Dark") || x.Key.Equals("Default")).ToList();
-						var customThemes = resources.Except(appThemes).ToArray();
-						var defaultThemes = appThemes.Where(x => x.Key.Equals("Default")).ToArray();
-
-						if (defaultThemes.Any())
 						{
-							appThemes.Remove(defaultThemes.First());
-						}
+							var appThemes = resources.Where(x => x.Key.Equals("Light") || x.Key.Equals("Dark") || x.Key.Equals("Default")).ToList();
+							var customThemes = resources.Except(appThemes).ToArray();
+							var defaultThemes = appThemes.Where(x => x.Key.Equals("Default")).ToArray();
 
-						var globalizedTypeName = GetGlobalizedTypeName(resourceTypeName);
-						var sanitizeResourceName = SanitizeResourceName(resourcePropertyName);
-						using (writer.BlockInvariant($"public static {globalizedTypeName} {sanitizeResourceName}"))
-						using (writer.BlockInvariant("get"))
-						{
-							if (customThemes.Any())
-							{
-								writer.AppendLineInvariant("// Custom themes defined for this resource: checking custom theme.");
-								writer.AppendLineInvariant("var currentCustomTheme = global::Uno.UI.ApplicationHelper.RequestedCustomTheme;");
-								using (writer.BlockInvariant($"switch(currentCustomTheme)"))
-								{
-									foreach (var theme in customThemes)
-									{
-										writer.AppendLineInvariant($"case \"{theme.Key}\": return {sanitizeResourceName}___{theme.Key};");
-									}
-								}
-								writer.AppendLine();
-							}
-
-							writer.AppendLineInvariant("// Element's RequestedTheme not supported yet. Fallback on Application's RequestedTheme.");
-							writer.AppendLine();
-
-							writer.AppendLineInvariant("var currentTheme = global::Windows.UI.Xaml.Application.Current.RequestedTheme;");
-							if (appThemes.Any())
-							{
-								using (writer.BlockInvariant($"switch(currentTheme)"))
-								{
-									foreach (var theme in appThemes)
-									{
-										if (theme.Key.Equals("Light"))
-										{
-											writer.AppendLineInvariant($"case global::Windows.UI.Xaml.ApplicationTheme.Light: return {sanitizeResourceName}___{theme.Key};");
-										}
-										else if (theme.Key.Equals("Dark"))
-										{
-											writer.AppendLineInvariant($"case global::Windows.UI.Xaml.ApplicationTheme.Dark: return {sanitizeResourceName}___{theme.Key};");
-										}
-
-										// Default is not generated here
-									}
-								}
-							}
-
-							writer.AppendLine();
 							if (defaultThemes.Any())
 							{
+								appThemes.Remove(defaultThemes.First());
+							}
+
+							var globalizedTypeName = GetGlobalizedTypeName(resourceTypeName);
+							var sanitizeResourceName = SanitizeResourceName(resourcePropertyName);
+							using (writer.BlockInvariant($"public static {globalizedTypeName} {sanitizeResourceName}"))
+							using (writer.BlockInvariant("get"))
+							{
+								if (customThemes.Any())
+								{
+									writer.AppendLineInvariant("// Custom themes defined for this resource: checking custom theme.");
+									writer.AppendLineInvariant("var currentCustomTheme = global::Uno.UI.ApplicationHelper.RequestedCustomTheme;");
+									using (writer.BlockInvariant($"switch(currentCustomTheme)"))
+									{
+										foreach (var theme in customThemes)
+										{
+											writer.AppendLineInvariant($"case \"{theme.Key}\": return {sanitizeResourceName}___{theme.Key};");
+										}
+									}
+									writer.AppendLine();
+								}
+
+								writer.AppendLineInvariant("// Element's RequestedTheme not supported yet. Fallback on Application's RequestedTheme.");
+								writer.AppendLine();
+
+								writer.AppendLineInvariant("var currentTheme = global::Windows.UI.Xaml.Application.Current.RequestedTheme;");
+								if (appThemes.Any())
+								{
+									using (writer.BlockInvariant($"switch(currentTheme)"))
+									{
+										foreach (var theme in appThemes)
+										{
+											if (theme.Key.Equals("Light"))
+											{
+												writer.AppendLineInvariant($"case global::Windows.UI.Xaml.ApplicationTheme.Light: return {sanitizeResourceName}___{theme.Key};");
+											}
+											else if (theme.Key.Equals("Dark"))
+											{
+												writer.AppendLineInvariant($"case global::Windows.UI.Xaml.ApplicationTheme.Dark: return {sanitizeResourceName}___{theme.Key};");
+											}
+
+											// Default is not generated here
+										}
+									}
+								}
+
+								writer.AppendLine();
+								if (defaultThemes.Any())
+								{
 									writer.AppendLineInvariant("// This resource is defined in a Default theme as a fallback.");
 									writer.AppendLineInvariant($"return {sanitizeResourceName}___Default;");
+								}
+								else
+								{
+									var msg = customThemes.Any()
+										? $"$\"The themed resource {resourcePropertyName} cannot be found for custom theme \\\"{{{{currentCustomTheme}}}}\\\", theme={{{{currentTheme}}}}.\""
+										: $"$\"The themed resource {resourcePropertyName} cannot be found for theme {{{{currentTheme}}}}.\"";
+									writer.AppendLineInvariant($"throw new InvalidOperationException({msg});");
+								}
 							}
-							else
-							{
-								var msg = customThemes.Any()
-									? $"$\"The themed resource {resourcePropertyName} cannot be found for custom theme \\\"{{{{currentCustomTheme}}}}\\\", theme={{{{currentTheme}}}}.\""
-									: $"$\"The themed resource {resourcePropertyName} cannot be found for theme {{{{currentTheme}}}}.\"";
-								writer.AppendLineInvariant($"throw new InvalidOperationException({msg});");
-							}
+							break;
 						}
-						break;
-					}
 				}
 			}
 
@@ -1313,6 +1313,12 @@ namespace Uno.UI.SourceGenerators.XamlGenerator
 
 		private bool HasMarkupExtension(XamlMemberDefinition valueNode)
 		{
+			// Return false if the Owner is a custom markup extension
+			if (IsCustomMarkupExtensionType(valueNode.Owner.Type))
+			{
+				return false;
+			}
+
 			return valueNode
 				.Objects
 				.Any(o =>
@@ -1324,6 +1330,14 @@ namespace Uno.UI.SourceGenerators.XamlGenerator
 				);
 		}
 
+		private bool HasCustomMarkupExtension(XamlMemberDefinition valueNode)
+		{
+			// Verify if a custom markup extension exists
+			return valueNode
+				.Objects
+				.Any(o => IsCustomMarkupExtensionType(o.Type));
+		}
+
 		private bool HasBindingMarkupExtension(XamlMemberDefinition valueNode)
 		{
 			return valueNode
@@ -1333,6 +1347,15 @@ namespace Uno.UI.SourceGenerators.XamlGenerator
 					|| o.Type.Name == "Bind"
 					|| o.Type.Name == "TemplateBinding"
 				);
+		}
+
+		private bool IsCustomMarkupExtensionType(XamlType xamlType)
+		{
+			var type = FindType(xamlType);
+
+			// Determine if the type if a custom markup extension
+			return type?.Name != "NullExtension"
+				&& type.BaseType?.Name == "MarkupExtension";
 		}
 
 		private XamlMemberDefinition FindMember(XamlObjectDefinition xamlObjectDefinition, string memberName)
@@ -1984,6 +2007,10 @@ namespace Uno.UI.SourceGenerators.XamlGenerator
 
 							BuildComplexPropertyValue(writer, member, closureName + ".", closureName);
 						}
+						else if (HasCustomMarkupExtension(member))
+						{
+							BuildCustomMarkupExtensionPropertyValue(writer, member, closureName + ".");
+						}
 						else if (member.Objects.Any())
 						{
 							if (member.Member.Name == "_UnknownContent") // So : FindType(member.Owner.Type) is INamedTypeSymbol type && IsCollectionOrListType(type)
@@ -2504,6 +2531,54 @@ namespace Uno.UI.SourceGenerators.XamlGenerator
 					);
 				}
 			}
+		}
+
+		private void BuildCustomMarkupExtensionPropertyValue(IIndentedStringBuilder writer, XamlMemberDefinition member, string prefix)
+		{
+			Func<string, string> formatLine = format => prefix + format + (prefix.HasValue() ? ";\r\n" : "");
+
+			// Get the type of the custom markup extension
+			var markupType = member
+				.Objects
+				.FirstOrDefault(o => IsCustomMarkupExtensionType(o.Type));
+
+			// Build a string of all its properties
+			var porperties = markupType
+				.Members
+				.Select(m =>
+				{
+					var resourceName = GetStaticResourceName(m);
+
+					var value = resourceName != null
+						? resourceName
+						: BuildLiteralValue(m, owner: member);
+
+					return "{0} = {1}".InvariantCultureFormat(m.Member.Name, value);
+				})
+				.JoinBy(", ");
+
+			// Get the full globalized namespaces for the custom markup extension and also for IMarkupExtensionOverrides
+			var markupTypeFullName = GetGlobalizedTypeName(FindType(markupType.Type).GetFullName());
+			var xamlMarkupFullName = GetGlobalizedTypeName(XamlConstants.Types.IMarkupExtensionOverrides);
+
+			// Get the attribute from the custom markup extension class then get the return type specifed with MarkupExtensionReturnTypeAttribute
+			var attributeData = FindType(markupType.Type).FindAttribute(XamlConstants.Types.MarkupExtensionReturnTypeAttribute);
+
+			if (attributeData == null)
+			{
+				this.Log().Error($"The custom markup extension {markupType.Type.Name} must specify the return type using {nameof(XamlConstants.Types.MarkupExtensionReturnTypeAttribute)}.");
+				return;
+			}
+
+			var returnType = attributeData.NamedArguments.FirstOrDefault(kvp => kvp.Key == "ReturnType").Value.Value;
+
+			// TODO: How to get "System.String" instead of "string" for returnType.ToString()
+			// TODO: Compare and make sure that the return type and current member type are the same
+
+			var generated = $"{member.Member.Name} = ({returnType})(({xamlMarkupFullName})(new {markupTypeFullName} {{ {porperties} }})).ProvideValue()";
+			var formatted = formatLine(generated);
+
+			writer.AppendLine(formatted);
 		}
 
 		private bool IsMemberInsideDataTemplate(XamlObjectDefinition xamlObject)
@@ -3184,6 +3259,7 @@ namespace Uno.UI.SourceGenerators.XamlGenerator
 									&& m.Type.Name != "StaticResource"
 									&& m.Type.Name != "ThemeResource"
 									&& m.Type.Name != "TemplateBinding"
+									&& !IsCustomMarkupExtensionType(m.Type)
 								);
 
 							if (nonBindingObjects.Any())
