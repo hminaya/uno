@@ -1353,7 +1353,7 @@ namespace Uno.UI.SourceGenerators.XamlGenerator
 		{
 			var type = FindType(xamlType);
 
-			// Determine if the type if a custom markup extension
+			// Determine if the type is a custom markup extension
 			return type?.Name != "NullExtension"
 				&& type.BaseType?.Name == "MarkupExtension";
 		}
@@ -2571,10 +2571,6 @@ namespace Uno.UI.SourceGenerators.XamlGenerator
 			}
 
 			var returnType = attributeData.NamedArguments.FirstOrDefault(kvp => kvp.Key == "ReturnType").Value.Value;
-
-			// TODO: How to get "System.String" instead of "string" for returnType.ToString()
-			// TODO: Compare and make sure that the return type and current member type are the same
-
 			var generated = $"{member.Member.Name} = ({returnType})(({xamlMarkupFullName})(new {markupTypeFullName} {{ {porperties} }})).ProvideValue()";
 			var formatted = formatLine(generated);
 

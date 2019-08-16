@@ -14,7 +14,6 @@ namespace Uno.UI.SourceGenerators.XamlGenerator
 		public const string RootUINamespace = "Windows.UI";
 		public const string BaseXamlNamespace = RootUINamespace + ".Xaml";
 		public const string UnoXamlNamespace = "Windows.UI.Xaml";
-		public const string UnoUIXamlNamespace = "Uno.UI.Xaml";
 
 		public static class Namespaces
 		{
@@ -67,7 +66,6 @@ namespace Uno.UI.SourceGenerators.XamlGenerator
 			public const string ElementStub = BaseXamlNamespace + ".ElementStub";
 			public const string ContentPresenter = Namespaces.Controls + ".ContentPresenter";
 			public const string Markup = BaseXamlNamespace + ".Markup";
-			public const string UnoMarkup = UnoUIXamlNamespace + ".Markup";
 
 			// Attributes
 			public const string ContentPropertyAttribute = Markup + ".ContentPropertyAttribute";
@@ -112,8 +110,7 @@ namespace Uno.UI.SourceGenerators.XamlGenerator
 			public const string Span = Namespaces.Documents + ".Span";
 
 			// MarkupExtension
-			public const string UnoMarkupExtension = UnoMarkup + ".MarkupExtension";
-			public const string IMarkupExtensionOverrides = UnoMarkupExtension + ".IMarkupExtensionOverrides";
+			public const string IMarkupExtensionOverrides = Markup + ".IMarkupExtensionOverrides";
 			public const string MarkupExtensionReturnTypeAttribute = Markup + ".MarkupExtensionReturnTypeAttribute";
 		}
 	}
