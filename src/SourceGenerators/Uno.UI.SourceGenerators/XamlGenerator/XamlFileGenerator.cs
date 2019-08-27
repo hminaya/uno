@@ -1351,11 +1351,16 @@ namespace Uno.UI.SourceGenerators.XamlGenerator
 
 		private bool IsCustomMarkupExtensionType(XamlType xamlType)
 		{
+			if (xamlType == null)
+			{
+				return false;
+			}
+
 			var type = FindType(xamlType);
 
 			// Determine if the type is a custom markup extension
 			return type?.Name != "NullExtension"
-				&& type.BaseType?.Name == "MarkupExtension";
+				&& type?.BaseType?.Name == "MarkupExtension";
 		}
 
 		private XamlMemberDefinition FindMember(XamlObjectDefinition xamlObjectDefinition, string memberName)
@@ -2466,22 +2471,35 @@ namespace Uno.UI.SourceGenerators.XamlGenerator
 				{
 					return (bindingNode ?? bindNode)
 						.Members
-						.Select(m => "{0} = {1}".InvariantCultureFormat(m.Member.Name == "_PositionalParameters" ? "Path" : m.Member.Name, BuildBindingOption(m, FindPropertyType(m.Member), prependCastToType: true)))
+						.Select(BuildMemberPropertyValue)
 						.Concat(bindNode != null && !isInsideDataTemplate ? new[] { "CompiledSource = this" } : Enumerable.Empty<string>())
 						.JoinBy(", ");
-
 				}
 				if (templateBindingNode != null)
 				{
 					return templateBindingNode
 						.Members
-						.Select(m => "{0} = {1}".InvariantCultureFormat(m.Member.Name == "_PositionalParameters" ? "Path" : m.Member.Name, BuildBindingOption(m, FindPropertyType(m.Member), prependCastToType: true)))
+						.Select(BuildMemberPropertyValue)
 						.Concat("RelativeSource = new RelativeSource(RelativeSourceMode.TemplatedParent)")
 						.JoinBy(", ");
 				}
 
 				return null;
-			};
+
+				string BuildMemberPropertyValue(XamlMemberDefinition m)
+				{
+					if (IsCustomMarkupExtensionType(m.Objects.FirstOrDefault()?.Type))
+					{
+						// If the member contains a custom markup extension, build the inner part first
+						var propertyValue = GetCustomMarkupExtensionValue(m);
+						return "{0} = {1}".InvariantCultureFormat(m.Member.Name, propertyValue);
+					}
+					else
+					{
+						return "{0} = {1}".InvariantCultureFormat(m.Member.Name == "_PositionalParameters" ? "Path" : m.Member.Name, BuildBindingOption(m, FindPropertyType(m.Member), prependCastToType: true));
+					}
+				}
+			}
 
 			var bindingOptions = GetBindingOptions();
 
@@ -2537,6 +2555,18 @@ namespace Uno.UI.SourceGenerators.XamlGenerator
 		{
 			Func<string, string> formatLine = format => prefix + format + (prefix.HasValue() ? ";\r\n" : "");
 
+			var propertyValue = GetCustomMarkupExtensionValue(member);
+
+			if (propertyValue.HasValue())
+			{
+				var formatted = formatLine($"{member.Member.Name} = {propertyValue}");
+
+				writer.AppendLine(formatted);
+			}
+		}
+
+		private string GetCustomMarkupExtensionValue(XamlMemberDefinition member)
+		{
 			// Get the type of the custom markup extension
 			var markupType = member
 				.Objects
@@ -2567,14 +2597,11 @@ namespace Uno.UI.SourceGenerators.XamlGenerator
 			if (attributeData == null)
 			{
 				this.Log().Error($"The custom markup extension {markupType.Type.Name} must specify the return type using {nameof(XamlConstants.Types.MarkupExtensionReturnTypeAttribute)}.");
-				return;
+				return string.Empty;
 			}
 
 			var returnType = attributeData.NamedArguments.FirstOrDefault(kvp => kvp.Key == "ReturnType").Value.Value;
-			var generated = $"{member.Member.Name} = ({returnType})(({xamlMarkupFullName})(new {markupTypeFullName} {{ {porperties} }})).ProvideValue()";
-			var formatted = formatLine(generated);
-
-			writer.AppendLine(formatted);
+			return $"({returnType})(({xamlMarkupFullName})(new {markupTypeFullName} {{ {porperties} }})).ProvideValue()";
 		}
 
 		private bool IsMemberInsideDataTemplate(XamlObjectDefinition xamlObject)
