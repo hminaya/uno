@@ -2555,6 +2555,50 @@ namespace Uno.UI.SourceGenerators.XamlGenerator
 		{
 			Func<string, string> formatLine = format => prefix + format + (prefix.HasValue() ? ";\r\n" : "");
 
+			// Get the type of the custom markup extension
+			var markupType = member
+				.Objects
+				.FirstOrDefault(o => IsCustomMarkupExtensionType(o.Type));
+
+			// Build a string of all its properties
+			var porperties = markupType
+				.Members
+				.Select(m =>
+				{
+					var resourceName = GetStaticResourceName(m);
+
+					var value = resourceName != null
+						? resourceName
+						: BuildLiteralValue(m, owner: member);
+
+					return "{0} = {1}".InvariantCultureFormat(m.Member.Name, value);
+				})
+				.JoinBy(", ");
+
+			// Get the full globalized namespaces for the custom markup extension and also for IMarkupExtensionOverrides
+			var markupTypeFullName = GetGlobalizedTypeName(FindType(markupType.Type).GetFullName());
+			var xamlMarkupFullName = GetGlobalizedTypeName(XamlConstants.Types.IMarkupExtensionOverrides);
+
+			// Get the attribute from the custom markup extension class then get the return type specifed with MarkupExtensionReturnTypeAttribute
+			var attributeData = FindType(markupType.Type).FindAttribute(XamlConstants.Types.MarkupExtensionReturnTypeAttribute);
+
+			if (attributeData == null)
+			{
+				this.Log().Error($"The custom markup extension {markupType.Type.Name} must specify the return type using {nameof(XamlConstants.Types.MarkupExtensionReturnTypeAttribute)}.");
+				return;
+			}
+
+			var returnType = attributeData.NamedArguments.FirstOrDefault(kvp => kvp.Key == "ReturnType").Value.Value;
+			var generated = $"{member.Member.Name} = ({returnType})(({xamlMarkupFullName})(new {markupTypeFullName} {{ {porperties} }})).ProvideValue()";
+			var formatted = formatLine(generated);
+
+			writer.AppendLine(formatted);
+		}
+
+		private void BuildCustomMarkupExtensionPropertyValue(IIndentedStringBuilder writer, XamlMemberDefinition member, string prefix)
+		{
+			Func<string, string> formatLine = format => prefix + format + (prefix.HasValue() ? ";\r\n" : "");
+
 			var propertyValue = GetCustomMarkupExtensionValue(member);
 
 			if (propertyValue.HasValue())
