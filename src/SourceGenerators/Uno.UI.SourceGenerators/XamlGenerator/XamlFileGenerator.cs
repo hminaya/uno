@@ -77,6 +77,7 @@ namespace Uno.UI.SourceGenerators.XamlGenerator
 		private readonly INamedTypeSymbol _objectSymbol;
 		private readonly INamedTypeSymbol _iFrameworkElementSymbol;
 		private readonly INamedTypeSymbol _dependencyObjectSymbol;
+		private readonly INamedTypeSymbol _markupExtensionSymbol;
 
 		private readonly INamedTypeSymbol _iCollectionSymbol;
 		private readonly INamedTypeSymbol _iCollectionOfTSymbol;
@@ -85,6 +86,8 @@ namespace Uno.UI.SourceGenerators.XamlGenerator
 		private readonly INamedTypeSymbol _iDictionaryOfTKeySymbol;
 		private readonly INamedTypeSymbol _dataBindingSymbol;
 		private readonly INamedTypeSymbol _styleSymbol;
+
+		private readonly List<INamedTypeSymbol> _markupExtensionTypes;
 
 		private readonly bool _isWasm;
 
@@ -140,6 +143,7 @@ namespace Uno.UI.SourceGenerators.XamlGenerator
 			_contentPresenterSymbol = GetType(XamlConstants.Types.ContentPresenter);
 			_iFrameworkElementSymbol = GetType(XamlConstants.Types.IFrameworkElement);
 			_dependencyObjectSymbol = GetType(XamlConstants.Types.DependencyObject);
+			_markupExtensionSymbol = GetType(XamlConstants.Types.MarkupExtension);
 			_iCollectionSymbol = GetType("System.Collections.ICollection");
 			_iCollectionOfTSymbol = GetType("System.Collections.Generic.ICollection`1");
 			_iListSymbol = GetType("System.Collections.IList");
@@ -147,6 +151,8 @@ namespace Uno.UI.SourceGenerators.XamlGenerator
 			_iDictionaryOfTKeySymbol = GetType("System.Collections.Generic.IDictionary`2");
 			_dataBindingSymbol = GetType("Windows.UI.Xaml.Data.Binding");
 			_styleSymbol = GetType(XamlConstants.Types.Style);
+
+			_markupExtensionTypes = _medataHelper.GetAllTypesDerivingFrom(_markupExtensionSymbol).ToList();
 
 			_isWasm = isWasm;
 		}
@@ -1356,11 +1362,8 @@ namespace Uno.UI.SourceGenerators.XamlGenerator
 				return false;
 			}
 
-			var type = FindType(xamlType);
-
 			// Determine if the type is a custom markup extension
-			return type?.Name != "NullExtension"
-				&& type?.BaseType?.Name == "MarkupExtension";
+			return _markupExtensionTypes.Any(ns => ns.Name.Equals(xamlType.Name, StringComparison.OrdinalIgnoreCase));
 		}
 
 		private XamlMemberDefinition FindMember(XamlObjectDefinition xamlObjectDefinition, string memberName)

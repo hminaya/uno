@@ -110,6 +110,7 @@ namespace Uno.UI.SourceGenerators.XamlGenerator
 			public const string Span = Namespaces.Documents + ".Span";
 
 			// MarkupExtension
+			public const string MarkupExtension = Markup + ".MarkupExtension";
 			public const string IMarkupExtensionOverrides = Markup + ".IMarkupExtensionOverrides";
 			public const string MarkupExtensionReturnTypeAttribute = Markup + ".MarkupExtensionReturnTypeAttribute";
 		}
