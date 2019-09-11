@@ -5,6 +5,7 @@ using Windows.UI.Xaml.Data;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using Uno.Disposables;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -35,13 +36,13 @@ namespace Windows.UI.Xaml.Controls
 
 		public ScrollContentPresenter()
 		{
-			//PointerReleased += ScrollViewer_PointerReleased;
-			//PointerPressed += ScrollViewer_PointerPressed;
-			//PointerCanceled += ScrollContentPresenter_PointerCanceled;
-			//PointerMoved += ScrollContentPresenter_PointerMoved;
-			//PointerEntered += ScrollContentPresenter_PointerEntered;
-			//PointerExited += ScrollContentPresenter_PointerExited;
-			//PointerWheelChanged += ScrollContentPresenter_PointerWheelChanged;
+			PointerReleased += ScrollViewer_PointerReleased;
+			PointerPressed += ScrollViewer_PointerPressed;
+			PointerCanceled += ScrollContentPresenter_PointerCanceled;
+			PointerMoved += ScrollContentPresenter_PointerMoved;
+			PointerEntered += ScrollContentPresenter_PointerEntered;
+			PointerExited += ScrollContentPresenter_PointerExited;
+			PointerWheelChanged += ScrollContentPresenter_PointerWheelChanged;
 		}
 
 		private void ScrollContentPresenter_PointerWheelChanged(object sender, Input.PointerRoutedEventArgs e)
@@ -75,6 +76,11 @@ namespace Windows.UI.Xaml.Controls
 			if (this.Log().IsEnabled(LogLevel.Debug))
 			{
 				this.Log().LogDebug($"{HtmlId}: {offsetSize} / {clientSize} / {e.GetCurrentPoint(this)}");
+			}
+
+			if (!hasVerticalScroll && !hasHorizontalScroll)
+			{
+				return;
 			}
 
 			// The events coming from the scrollbars are bubbled up
@@ -204,13 +210,26 @@ namespace Windows.UI.Xaml.Controls
 
 		private void OnScroll(object sender, EventArgs args)
 		{
-			int.TryParse(GetProperty("scrollLeft"), out var horizontalOffset);
-			int.TryParse(GetProperty("scrollTop"), out var verticalOffset);
-			
+			var left = GetProperty("scrollLeft");
+			var top = GetProperty("scrollTop");
+
+			if (!double.TryParse(left, NumberStyles.Number, CultureInfo.InvariantCulture, out var horizontalOffset))
+			{
+				horizontalOffset = 0;
+			}
+			if (!double.TryParse(top, NumberStyles.Number, CultureInfo.InvariantCulture, out var verticalOffset))
+			{
+				verticalOffset = 0;
+			}
+
+			// Note: Scroll due to inertia (so with IsPointerPressed == false) should also be considered 
+			//		 as intermediate, we however don't have any information about that in the DOM 'scroll' event.
+			var isIntermediate = IsPointerPressed;
+
 			(TemplatedParent as ScrollViewer)?.OnScrollInternal(
 				horizontalOffset,
 				verticalOffset,
-				isIntermediate: false
+				isIntermediate
 			);
 		}
 
