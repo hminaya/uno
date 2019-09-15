@@ -2496,6 +2496,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Windows_UI_Xaml\Localization\Localization_Implicit.xaml.cs">
       <DependentUpon>Localization_Implicit.xaml</DependentUpon>
     </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Windows_UI_Xaml\MarkupExtensionTests\InverseBool.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Windows_UI_Xaml\MarkupExtensionTests\Simple.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Windows_UI_Xaml\Properties\DataContextProperty.xaml.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Windows_UI_Xaml\StyleTests\Style_Inline.xaml.cs">
       <DependentUpon>Style_Inline.xaml</DependentUpon>
@@ -2600,7 +2602,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Windows_UI_Xaml\MarkupExtensionTests\MarkupExtension.xaml.cs">
       <DependentUpon>MarkupExtension.xaml</DependentUpon>
     </Compile>
-    <Compile Include="$(MSBuildThisFileDirectory)Windows_UI_Xaml\MarkupExtensionTests\Simple.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Windows_UI_Xaml\MarkupExtensionTests\Entity.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Windows_UI_Xaml\xBindTests\xBind_Field.xaml.cs">
       <DependentUpon>xBind_Field.xaml</DependentUpon>
     </Compile>

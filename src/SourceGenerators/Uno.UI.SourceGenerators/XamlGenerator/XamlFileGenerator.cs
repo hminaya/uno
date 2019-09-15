@@ -1320,7 +1320,7 @@ namespace Uno.UI.SourceGenerators.XamlGenerator
 		private bool HasMarkupExtension(XamlMemberDefinition valueNode)
 		{
 			// Return false if the Owner is a custom markup extension
-			if (IsCustomMarkupExtensionType(valueNode.Owner.Type))
+			if (IsCustomMarkupExtensionType(valueNode.Owner?.Type))
 			{
 				return false;
 			}
