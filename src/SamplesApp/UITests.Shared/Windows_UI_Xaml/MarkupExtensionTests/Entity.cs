@@ -27,31 +27,5 @@ namespace UITests.Shared.Windows_UI_Xaml.MarkupExtension
 		public string StringProperty { get; set; } = string.Empty;
 
 		public int IntProperty { get; set; }
-
-		//public string StringProperty
-		//{
-		//	get => (string)GetValue(StringPropertyProperty);
-		//	set => SetValue(StringPropertyProperty, value);
-		//}
-
-		//public static readonly DependencyProperty StringPropertyProperty =
-		//	DependencyProperty.Register(
-		//		nameof(StringProperty),
-		//		typeof(string),
-		//		typeof(EntityObject),
-		//		new PropertyMetadata(string.Empty));
-
-		//public int IntProperty
-		//{
-		//	get => (int)GetValue(IntPropertyProperty);
-		//	set => SetValue(IntPropertyProperty, value);
-		//}
-
-		//public static readonly DependencyProperty IntPropertyProperty =
-		//	DependencyProperty.Register(
-		//		nameof(IntProperty),
-		//		typeof(int),
-		//		typeof(EntityObject),
-		//		new PropertyMetadata(0));
 	}
 }
